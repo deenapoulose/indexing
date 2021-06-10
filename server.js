@@ -1,10 +1,12 @@
 const express =require( 'express');
 const mongoose = require( 'mongoose');
+const cors = require('cors');
 const coll=require('./model')
 const data=require('./data')
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors());
 
 mongoose.connect(process.env.MONGODB_URL || 'mongodb://localhost/lastca', {
   useNewUrlParser: true,
@@ -18,12 +20,16 @@ app.get(
       res.send({ createdProducts });
     })
   );
-  app.get("/get", (req, res) => {
-    coll.find({
+ 
+  app.post("/get", async(req, res) => {
+    const lang= req.body.lang;
+    const long =  req.body.long;
+    // console.log("fname",fname);
+    await coll.find({
         location:
        { $near:
           {
-            $geometry: { type: "Point",  coordinates: [ -73.9667, 40.78 ] },
+            $geometry: { type: "Point",  coordinates: [ lang, long ] },
             $minDistance: 1000,
             $maxDistance: 5000
           }
